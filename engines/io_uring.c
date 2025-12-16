@@ -686,6 +686,10 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
 	if (cqe->res == io_u->xfer_buflen ||
 	    (io_u->ddir == DDIR_TRIM && !cqe->res)) {
 		io_u->error = 0;
+
+		if (o->md_per_io_size)
+			fio_ioring_validate_md(td, io_u);
+
 		return io_u;
 	}
 
@@ -701,9 +705,6 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
 
 		return io_u;
 	}
-
-	if (o->md_per_io_size)
-		fio_ioring_validate_md(td, io_u);
 
 	return io_u;
 }
