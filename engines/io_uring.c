@@ -693,18 +693,14 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
 		return io_u;
 	}
 
-	if (cqe->res != io_u->xfer_buflen) {
-		if (io_u->ddir == DDIR_TRIM) {
-			ld->async_trim_fail = 1;
-			cqe->res = 0;
-		}
-		if (cqe->res > io_u->xfer_buflen)
-			io_u->error = -cqe->res;
-		else
-			io_u->resid = io_u->xfer_buflen - cqe->res;
-
-		return io_u;
+	if (io_u->ddir == DDIR_TRIM) {
+		ld->async_trim_fail = 1;
+		cqe->res = 0;
 	}
+	if (cqe->res > io_u->xfer_buflen)
+		io_u->error = -cqe->res;
+	else
+		io_u->resid = io_u->xfer_buflen - cqe->res;
 
 	return io_u;
 }
